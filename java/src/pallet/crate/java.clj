@@ -61,7 +61,7 @@
                     [:sun])
         components (or (seq (filter #{:jdk :jre} options))
                        [:jdk])
-        packager (:target-packager request)
+        packager (request-map/packager request)
         os-family (request-map/os-family request)]
 
     (let [vc (fn [request vendor component]
