@@ -114,23 +114,21 @@
                    :or {type "rsa"} :as options}]
   (let [filename (or filename (ssh-default-filenames type))
         path (str (user-ssh-dir user) filename ".pub")]
-    (->
-     session
-     (remote-file/with-remote-file
-       (fn [session local-path]
-         (action/as-clj-action
-          (fn [session]
-            (let [pub-key (slurp local-path)]
-              (if-not (string/blank? pub-key)
-                (if parameter-path
-                  (parameter/update-for-service
-                   session parameter-path
-                   (fn [keys] (conj (or keys #{}) pub-key)))
-                  (parameter/assoc-for-target
-                   session [:user (keyword user) (keyword filename)] pub-key))
-                session)))
-          [session]))
-       path))))
+    (-> session
+        (remote-file/with-remote-file
+          (action/as-clj-action
+           (fn [session local-path]
+             (let [pub-key (slurp local-path)]
+               (if-not (string/blank? pub-key)
+                 (if parameter-path
+                   (parameter/update-for-service
+                    session parameter-path
+                    (fn [keys] (conj (or keys #{}) pub-key)))
+                   (parameter/assoc-for-target
+                    session [:user (keyword user) (keyword filename)] pub-key))
+                 session)))
+           [session])
+          path))))
 
 #_
 (pallet.core/defnode a {}
